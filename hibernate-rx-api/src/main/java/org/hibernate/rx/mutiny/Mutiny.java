@@ -16,7 +16,7 @@ public class Mutiny {
 			this.session = session;
 		}
 
-		public <T> Uni<Optional<T>> find(Class<T> entityClass, Object id) {
+		public <T> Uni<T> find(Class<T> entityClass, Object id) {
 			return createFrom().completionStage( session.find(entityClass, id) );
 		}
 
@@ -48,7 +48,7 @@ public class Mutiny {
 			return createFrom().completionStage( session.flush() ).map( s -> this);
 		}
 
-		public <T> Uni<Optional<T>> fetch(T association) {
+		public <T> Uni<T> fetch(T association) {
 			return createFrom().completionStage( session.fetch(association) );
 		}
 	}
