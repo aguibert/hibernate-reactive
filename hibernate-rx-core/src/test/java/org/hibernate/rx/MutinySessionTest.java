@@ -1,8 +1,9 @@
 package org.hibernate.rx;
 
 import io.smallrye.mutiny.Uni;
-import io.vertx.axle.sqlclient.Tuple;
 import io.vertx.ext.unit.TestContext;
+import io.vertx.sqlclient.Tuple;
+
 import org.hibernate.cfg.Configuration;
 import org.hibernate.rx.mutiny.Mutiny;
 import org.junit.Test;
@@ -159,7 +160,7 @@ public class MutinySessionTest extends BaseRxTest {
 						.onItem().produceUni( v -> openMutinySession() )
 						.onItem().produceUni( session ->
 								session.find( GuineaPig.class, 5 )
-										.onItem().produceUni( aloi -> session.remove( aloi.get() ) )
+										.onItem().produceUni( aloi -> session.remove( aloi ) )
 										.onItem().produceUni( v -> session.flush() )
 										.onItem().produceUni( v -> selectNameFromId( 5 ) )
 										.onItem().invoke( ret -> context.assertNull( ret ) ) )
@@ -175,7 +176,7 @@ public class MutinySessionTest extends BaseRxTest {
 						.flatMap( v -> openMutinySession() )
 						.flatMap( session ->
 							session.find( GuineaPig.class, 5 )
-								.flatMap( aloi -> session.remove( aloi.get() ) )
+								.flatMap( aloi -> session.remove( aloi ) )
 								.flatMap( v -> session.flush() )
 								.flatMap( v -> selectNameFromId( 5 ) )
 								.map( ret -> context.assertNull( ret ) ) )
@@ -192,8 +193,7 @@ public class MutinySessionTest extends BaseRxTest {
 						.flatMap( v -> openMutinySession() )
 						.flatMap( session ->
 							session.find( GuineaPig.class, 5 )
-								.onItem().invoke( o -> {
-									GuineaPig pig = o.orElseThrow( () -> new AssertionError( "Guinea pig not found" ) );
+								.onItem().invoke( pig -> {
 									// Checking we are actually changing the name
 									context.assertNotEquals( pig.getName(), NEW_NAME );
 									pig.setName( NEW_NAME );
@@ -205,10 +205,10 @@ public class MutinySessionTest extends BaseRxTest {
 		);
 	}
 
-	private void assertThatPigsAreEqual(TestContext context, GuineaPig expected, Optional<GuineaPig> actual) {
-		context.assertTrue( actual.isPresent() );
-		context.assertEquals( expected.getId(), actual.get().getId() );
-		context.assertEquals( expected.getName(), actual.get().getName() );
+	private void assertThatPigsAreEqual(TestContext context, GuineaPig expected, GuineaPig actual) {
+		context.assertNotNull( actual );
+		context.assertEquals( expected.getId(), actual.getId() );
+		context.assertEquals( expected.getName(), actual.getName() );
 	}
 
 	@Entity
