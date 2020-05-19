@@ -14,6 +14,7 @@ dependencies {
         exclude group: 'org.hibernate.common', module: 'hibernate-commons-annotations'
         exclude group: 'org.jboss.spec.javax.transaction', module: 'jboss-transaction-api_1.2_spec'
     }
+    implementation "io.smallrye.reactive:mutiny:0.5.0"
     testCompile ("org.hibernate:hibernate-testing:${hibernateOrmVersion}")
     
     // TODO: Once we restructure our tests we can change these driver dependencies
